@@ -9,23 +9,24 @@ var _ = require('lodash');
 var ObjectId = require('mongodb').ObjectID;
 
 exports.getWarehouses = function (req, res) {
-    Warehouse.find({}, function (err, warehouse) {
-        if (err) {
-            res.send(err);
-        }
-        res.json(warehouse);
-    });
+    Warehouse.find().populate('items').then(
+        function (err, warehouse) {
+            if (err) {
+                res.send(err);
+            }
+            res.json(warehouse);
+        });
 };
 
 exports.getWarehouse = function (req, res) {
     var id = ObjectId(req.params.warehouseID)
-    Warehouse.findById(id, function (err, warehouse) {
-        if (err) {
-            console.log("error")
-            res.send(err);
-        }
-        res.json(warehouse);
-    });
+    Warehouse.findById(id).populate('items').then(
+        function (err, warehouse) {
+            if (err) {
+                res.send(err);
+            }
+            res.json(warehouse);
+        })
 };
 
 exports.createWarehouse = function (req, res) {
