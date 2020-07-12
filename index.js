@@ -2,6 +2,8 @@
 var express = require('express'),
     app = express(),
     port = process.env.PORT || 3000;
+const cors = require('cors');
+app.use(cors());
 
 mongoose = require('mongoose'),
     Warehouse = require('./api/models/warehouseModel'),
