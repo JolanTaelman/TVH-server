@@ -13,7 +13,8 @@ module.exports = function (app) {
         .delete(warehouseList.deleteWarehouse);
 
         app.route('/warehouses/:warehouseID/:itemID')
-        .delete(warehouseList.deleteItemFromWarehouse);
+        .delete(warehouseList.deleteItemFromWarehouse)
+        .post(warehouseList.moveItemToWarehouse);
 
         app.route('/item/:itemID')
         .get(warehouseList.getItem)

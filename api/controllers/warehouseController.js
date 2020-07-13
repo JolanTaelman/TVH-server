@@ -55,6 +55,8 @@ exports.addItemToWarehouse = function (req, res) {
         if (warehouse.capacity - warehouse.items.length > 0) {
             item.save(function (err, response) {
                 warehouse.updateOne({ $push: { items: item._id } }).then(() => {
+                    if (err)
+                        res.send(err);
                     res.json(item);
                 })
             })
@@ -89,6 +91,44 @@ exports.deleteItemFromWarehouse = function (req, res) {
         res.send(`${err}`);
     });
 }
+/*
+exports.addExistingItemToWarehouse = function (req, res) {
+    var itemId = req.params.itemID;
+    Warehouse.findById(req.params.warehouseID).then(warehouse => {
+        console.log('itemId', itemId);
+        if (warehouse.capacity - warehouse.items.length > 0) {
+            warehouse.updateOne({ $push: { items: itemId } }).then(() => {
+                Item.findByIdAndUpdate(itemId, { warehouse: req.params.warehouseID })
+                    .then(() => res.json(itemId));
+            })
+        } else {
+            throw new Error('Warehouse at maximum capacity');
+        }
+    }).catch(err => {
+        res.send(`${err}`);
+    });
+}*/
+
+exports.moveItemToWarehouse = function (req, res) {
+    var itemId = req.params.itemID;
+    Item.findById(itemId).then((item) => {
+        Warehouse.findById(req.params.warehouseID).then(warehouse => {
+            if (warehouse.capacity - warehouse.items.length > 0) {
+                Warehouse.findByIdAndUpdate(item.warehouse, { $pull: { items: itemId } }).then(() => {
+                    warehouse.updateOne({ $push: { items: itemId } }).then(() => {
+                        item.updateOne({ warehouse: req.params.warehouseID }).then(() => res.json(itemId));
+                    })
+                })
+            } else {
+                throw new Error('Warehouse at maximum capacity');
+            }
+        })
+    }).catch(err => {
+            res.send(`${err}`);
+        });
+}
+
+
 
 exports.getItem = function (req, res) {
     var id = ObjectId(req.params.itemID)
