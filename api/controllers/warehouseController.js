@@ -91,23 +91,6 @@ exports.deleteItemFromWarehouse = function (req, res) {
         res.send(`${err}`);
     });
 }
-/*
-exports.addExistingItemToWarehouse = function (req, res) {
-    var itemId = req.params.itemID;
-    Warehouse.findById(req.params.warehouseID).then(warehouse => {
-        console.log('itemId', itemId);
-        if (warehouse.capacity - warehouse.items.length > 0) {
-            warehouse.updateOne({ $push: { items: itemId } }).then(() => {
-                Item.findByIdAndUpdate(itemId, { warehouse: req.params.warehouseID })
-                    .then(() => res.json(itemId));
-            })
-        } else {
-            throw new Error('Warehouse at maximum capacity');
-        }
-    }).catch(err => {
-        res.send(`${err}`);
-    });
-}*/
 
 exports.moveItemToWarehouse = function (req, res) {
     var itemId = req.params.itemID;
@@ -124,11 +107,19 @@ exports.moveItemToWarehouse = function (req, res) {
             }
         })
     }).catch(err => {
-            res.send(`${err}`);
-        });
+        res.send(`${err}`);
+    });
 }
 
-
+//returns a list of all items from the warehouse matching the provided Id.
+exports.getItemList = function (req, res) {
+    let warehouse = req.params.warehouseID;
+    Warehouse.findById(warehouse).populate("items").then((response) => {
+        res.json(response.items);
+    }).catch(err => {
+        res.send(`${err}`);
+    });
+}
 
 exports.getItem = function (req, res) {
     var id = ObjectId(req.params.itemID)

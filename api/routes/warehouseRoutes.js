@@ -12,11 +12,14 @@ module.exports = function (app) {
         .post(warehouseList.addItemToWarehouse)
         .delete(warehouseList.deleteWarehouse);
 
-        app.route('/warehouses/:warehouseID/:itemID')
+    app.route('/warehouses/:warehouseID/items')
+        .get(warehouseList.getItemList);
+
+    app.route('/warehouses/:warehouseID/:itemID')
         .delete(warehouseList.deleteItemFromWarehouse)
         .post(warehouseList.moveItemToWarehouse);
 
-        app.route('/item/:itemID')
+    app.route('/item/:itemID')
         .get(warehouseList.getItem)
         .delete(warehouseList.deleteItem);
 };
