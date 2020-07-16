@@ -187,9 +187,8 @@ exports.getEmptyCapacity = function (req, res) {
             for (let index = 0; index < warehouse.length; index++) {
                 const element = warehouse[index];
                 const available = element.capacity - element.items.length;
-                const name = element.name;
                 capacity += available;
-                individualCapacity[index] = { [name]: available };
+                individualCapacity[index] = { space: available, name: element.name };
             }
             res.json({ capacity: capacity, 'warehouses': individualCapacity });
         });
