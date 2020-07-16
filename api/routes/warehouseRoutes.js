@@ -18,6 +18,10 @@ module.exports = function (app) {
     app.route('/warehouses/:warehouseID/:itemID')
         .delete(warehouseList.deleteItemFromWarehouse)
         .post(warehouseList.moveItemToWarehouse);
+        
+    app.route('/capacity')
+    .get(warehouseList.getEmptyCapacity);
+
 
     app.route('/item/:itemID')
         .get(warehouseList.getItem)

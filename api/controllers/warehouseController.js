@@ -8,6 +8,10 @@ var _ = require('lodash');
 
 var ObjectId = require('mongodb').ObjectID;
 
+/**
+ * /warehouses GET
+ *  Returns all warehouses
+ *  */
 exports.getWarehouses = function (req, res) {
     Warehouse.find().populate('items').then(
         function (err, warehouse) {
@@ -18,6 +22,10 @@ exports.getWarehouses = function (req, res) {
         });
 };
 
+/**
+ * '/warehouses/:warehouseID' GET
+ *  Returns warehouse based on specific 
+ *  */
 exports.getWarehouse = function (req, res) {
     var id = ObjectId(req.params.warehouseID)
     Warehouse.findById(id).populate('items').then(
@@ -29,10 +37,12 @@ exports.getWarehouse = function (req, res) {
         })
 };
 
+/**
+ * '/warehouses' POST
+ *  Creates a warehouse based on the provided body parameters 
+ *  */
 exports.createWarehouse = function (req, res) {
     var nWarehouse = new Warehouse(req.body);
-    console.log(nWarehouse);
-
     nWarehouse.save(function (err, warehouse) {
         if (err)
             res.send(err);
@@ -40,6 +50,10 @@ exports.createWarehouse = function (req, res) {
     });
 };
 
+/**
+ * '/warehouses/:warehouseID' PUT
+ * finds and updates a warehouse 
+ *  */
 exports.updateWarehouse = function (req, res) {
     Warehouse.findOneAndUpdate({ _id: req.params.warehouseID }, req.body, { new: true }, function (err, warehouse) {
         if (err)
@@ -48,6 +62,10 @@ exports.updateWarehouse = function (req, res) {
     });
 };
 
+/**
+ * '/warehouses/:warehouseID' POST
+ * 
+ *  */
 exports.addItemToWarehouse = function (req, res) {
     var item = new Item(req.body);
     item.warehouse = req.params.warehouseID;
@@ -68,6 +86,10 @@ exports.addItemToWarehouse = function (req, res) {
     });
 };
 
+/**
+ * '/warehouses/:warehouseID' DELETE
+ * 
+ *  */
 exports.deleteWarehouse = function (req, res) {
     Warehouse.remove({
         _id: req.params.warehouseID
@@ -78,6 +100,10 @@ exports.deleteWarehouse = function (req, res) {
     });
 };
 
+/**
+ * '/warehouses/:warehouseID/:itemID' DELETE
+ * 
+ *  */
 exports.deleteItemFromWarehouse = function (req, res) {
     var itemId = req.params.itemID;
     var warehouseId = ObjectId(req.params.warehouseID);
@@ -92,6 +118,10 @@ exports.deleteItemFromWarehouse = function (req, res) {
     });
 }
 
+/**
+ * '/warehouses/:warehouseID/:itemID' POST
+ * 
+ *  */
 exports.moveItemToWarehouse = function (req, res) {
     var itemId = req.params.itemID;
     Item.findById(itemId).then((item) => {
@@ -111,7 +141,10 @@ exports.moveItemToWarehouse = function (req, res) {
     });
 }
 
-//returns a list of all items from the warehouse matching the provided Id.
+/**
+ * /warehouses/:warehouseID/items' GET
+ * returns a list of all items from the warehouse matching the provided Id.
+ *  */
 exports.getItemList = function (req, res) {
     let warehouse = req.params.warehouseID;
     Warehouse.findById(warehouse).populate("items").then((response) => {
@@ -120,7 +153,10 @@ exports.getItemList = function (req, res) {
         res.send(`${err}`);
     });
 }
-
+/**
+ * '/item/:itemID' GET
+ * 
+ *  */
 exports.getItem = function (req, res) {
     var id = ObjectId(req.params.itemID)
     Item.findById(id, function (err, item) {
@@ -131,10 +167,30 @@ exports.getItem = function (req, res) {
     });
 };
 
+/**
+ * '/item/:itemID' DELETE
+ *  Deletes item from DB based on provided ID
+ *  */
 exports.deleteItem = function (req, res) {
     Item.remove({
         _id: req.params.itemID
     }).then((response) => {
         res.json({ message: 'Item successfully deleted' });
     });
+};
+
+exports.getEmptyCapacity = function (req, res) {
+    Warehouse.find().then(
+        function (warehouse) {
+            let individualCapacity = [];
+            let capacity = 0;
+            for (let index = 0; index < warehouse.length; index++) {
+                const element = warehouse[index];
+                const available = element.capacity - element.items.length;
+                const name = element.name;
+                capacity += available;
+                individualCapacity[index] = { [name]: available };
+            }
+            res.json({ capacity: capacity, 'warehouses': individualCapacity });
+        });
 };
